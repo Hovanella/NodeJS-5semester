@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+
+</body>
+<script>
+    const xmlHttpRequest = new XMLHttpRequest();
+
+    xmlHttpRequest.open("GET", 'http://localhost:3000/api/name', true);
+
+    xmlHttpRequest.onreadystatechange = () => {
+        const body = document.querySelector('body');
+        if (xmlHttpRequest.readyState === 4) {
+            if (xmlHttpRequest.status === 200) {
+                body.innerText = xmlHttpRequest.responseText;
+            }
+        }
+    }
+
+    xmlHttpRequest.send();
+</script>
+</html>

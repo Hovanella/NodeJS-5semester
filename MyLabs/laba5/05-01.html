@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+
+
+        .wrapper {
+            padding-bottom: 1em;
+            width: 30em;
+            min-height: 200px;
+            box-shadow: black 0 0 10px;
+            border-radius: 10px;
+            margin: 150px auto 0;
+            padding-top: 30px;
+        }
+
+        .button {
+            height: 2em;
+            display: block;
+            width: 80%;
+            margin: auto;
+        }
+
+        body {
+            background-color: lightblue;
+        }
+
+        .PostPutGroup {
+            margin-top: 0.5em;
+            width: 100%;
+            margin-left: 1em;
+        }
+
+        .PostPutGroupButton {
+            height: 2em;
+            margin-top: 0.5em;
+            margin-left: 1em;
+            width: 41%;
+        }
+
+        .DeleteGroup {
+            margin-top: 0.5em;
+            width: 100%;
+
+        }
+
+        .deleteId {
+            height: 2em;
+            margin-top: 0.5em;
+            margin-left: 10em;
+            margin-bottom: 0.5em;
+            width: 41%;
+        }
+        .table{
+            margin-left: 3em;
+            width: 80%;
+            border: solid black 1px;
+            text-align: center;
+            margin-top: 1em;
+
+        }
+    </style>
+    <title>Document</title>
+</head>
+<body>
+<div class="wrapper">
+
+
+    <button class="button" onclick="get()">GET</button>
+
+
+    <div id="PostPutGroup" class="PostPutGroup">
+        <input class="id" type="number" placeholder="id">
+        <input class="name" type="text" placeholder="name">
+        <input class="birthday" type="date" placeholder="birthday">
+        <button class="PostPutGroupButton" onclick="post()">POST</button>
+        <button class="PostPutGroupButton" onclick="put()">PUT</button>
+    </div>
+
+
+    <div id="DeleteGroup" class="DeleteGroup">
+        <input id="deleteId" placeholder="id to delete" class="deleteId" type="number">
+        <button class="button" onclick="deleteUser()">DELETE</button>
+    </div>
+
+    <table id="data" class="table">
+         <tr id="header">
+            <th>id</th>
+            <th>name</th>
+            <th>birthday</th>
+        </tr>
+    </table>
+</div>
+
+
+</body>
+<script>
+    function get() {
+        const table = document.querySelector('#data');
+        fetch('http://localhost:3000/api/db', {method: 'GET'})
+            .then(response => response.json())
+            .then(users => {
+
+                let onlyHeadersRowLeft = table.rows.length > 1;
+                while (onlyHeadersRowLeft) {
+                    table.deleteRow(1);
+                    onlyHeadersRowLeft =  table.rows.length > 1;
+                }
+
+                users.forEach(x => {
+
+                    const id = x.id.toString();
+                    const birthday = x.bday.toString();
+                    const name = x.name.toString();
+
+                    const tr = document.createElement('tr');
+                    const idCell = document.createElement('td');
+                    const nameCell = document.createElement('td');
+                    const birthdayCell = document.createElement('td');
+
+                    idCell.textContent = id;
+                    nameCell.textContent = name;
+                    birthdayCell.textContent = birthday;
+
+                    tr.appendChild(idCell);
+                    tr.appendChild(nameCell);
+                    tr.appendChild(birthdayCell);
+
+
+                    table.appendChild(tr);
+                })
+            });
+    }
+
+    function post() {
+
+        const addGroup = document.querySelector('#PostPutGroup');
+        const id = +addGroup.querySelector(".id").value;
+        const name = addGroup.querySelector('.name').value;
+        const bday = addGroup.querySelector(".birthday").value;
+
+        fetch("http://localhost:3000/api/db", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify({id, name, bday})
+        })
+            .catch(() => {
+            })
+    }
+
+    function put() {
+        const addGroup = document.querySelector('#PostPutGroup')
+        const id = +addGroup.querySelector(".id").value;
+        const name = addGroup.querySelector(".name").value;
+        const bday = addGroup.querySelector(".birthday").value;
+        const user = {id, name, bday};
+
+        fetch("http://localhost:3000/api/db", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(user)
+        })
+            .catch(() => {
+            })
+    }
+
+    function deleteUser() {
+        const id = +document.querySelector("#deleteId").value;
+        fetch(`http://localhost:3000/api/db?id=${id}`, {
+            method: "DELETE",
+        })
+            .catch(() => {
+            })
+    }
+
+</script>
+</html>

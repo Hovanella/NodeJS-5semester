@@ -1,0 +1,8 @@
+{
+  "name": "laba14",
+  "version": "1.0.0",
+  "dependencies": {
+    "msnodesqlv8": "^2.5.0",
+    "mssql": "^8.1.2"
+  }
+}

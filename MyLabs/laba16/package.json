@@ -1,0 +1,12 @@
+{
+  "name": "laba16",
+  "version": "1.0.0",
+  "dependencies": {
+    "apollo-server": "^3.10.0",
+    "graphql": "^15.8.0",
+    "http-status-codes": "^2.2.0",
+    "msnodesqlv8": "^2.6.0",
+    "mssql": "^8.1.2",
+    "sequelize": "^6.21.3"
+  }
+}
