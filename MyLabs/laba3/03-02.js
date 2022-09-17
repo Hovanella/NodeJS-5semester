@@ -15,11 +15,11 @@ http.createServer((request, response) => {
             const k = +path.query.k;
 
             if (Number.isInteger(k) && k >= 0) {
-                let k = +path.query.k;
                 response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
                 response.end(JSON.stringify({k: k, fact: factorial(k)}));
             } else {
-                console.log("Неверный параметр");
+                response.writeHead(400, {'Content-Type': 'text/plain; charset=utf-8'});
+                response.end("Неверный параметр");
             }
             break;
         case '/':

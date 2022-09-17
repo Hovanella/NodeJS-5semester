@@ -1,54 +1,63 @@
 const http = require("http");
 const fs = require("fs");
-const path = require("path")
+
 const PORT = 3000;
 
-const server = http.createServer( (req, res) => {
+http.createServer( (request, response) => {
 
-    const url = req.url;
+    const url = request.url;
 
-    console.log(url);
     switch (url) {
+        default:
         case "/html": {
-            res.writeHead(200, {
+            response.writeHead(200, {
                 'Content-Type': 'text/html'
             });
-            direct("index.html", res);
+            readFileAndFinishResponse("index.html", response);
             break;
         }
         case "/png": {
-            res.writeHead(200, {'Content-Type':'image/png'});
-            direct("pic.png", res);
+            response.writeHead(200, {'Content-Type':'image/png'});
+            readFileAndFinishResponse("OP3CQjxWBwg.jpg", response);
             break;
         }
         case "/api/name": {
-            res.writeHead(200, {
+            response.writeHead(200, {
                 'Content-Type': 'text/plain',
             });
-            res.end("Hovanskii Timofei Alexandrovich");
+            response.end("Hovanskii Timofei Alexandrovich");
             break;
         }
         case "/xmlhttprequest": {
-            direct("xmlhttprequest.html", res);
+            response.writeHead(200, {
+                'Content-Type': 'text/html'
+            });
+            readFileAndFinishResponse("xmlhttprequest.html", response);
             break;
         }
         case "/fetch": {
-            direct("fetch.html", res);
+            response.writeHead(200, {
+                'Content-Type': 'text/html'
+            });
+            readFileAndFinishResponse("fetch.html", response);
             break;
         }
         case "/jquery": {
-            direct("jquery.html", res);
+            response.writeHead(200, {
+                'Content-Type': 'text/html'
+            });
+            readFileAndFinishResponse("jquery.html", response);
             break;
         }
     }
+}).listen(PORT, () => {
+    console.log(`'Server is running at http://localhost:${PORT}/'`);
 });
 
-server.listen(PORT, () => {
-    console.log(`Server has been started on ${PORT}...`);
-});
 
-function direct(fileName, response) {
-    let filePath = path.join(__dirname,fileName);
+const readFileAndFinishResponse = (fileName, response) => {
+
+    let filePath = "./" + fileName;
     fs.readFile(filePath, (error, data) => {
         if (error) {
             console.error(error);

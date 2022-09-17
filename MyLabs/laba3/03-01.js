@@ -1,4 +1,5 @@
 const http = require("http");
+
 let state = 'norm';
 
 http.createServer((request, response) => {
@@ -11,7 +12,6 @@ http.createServer((request, response) => {
 
 
 process.stdin.setEncoding('utf-8');
-
 process.stdin.on('readable', () => {
 
     let input = null;
@@ -23,6 +23,7 @@ process.stdin.on('readable', () => {
         if (states.includes(trimmedInput)) {
 
             console.log(`${state} -> ${trimmedInput}`);
+
             if (trimmedInput === 'exit') {
                 process.exit(0);
             } else {

@@ -15,11 +15,8 @@ http.createServer(async (request, response) => {
             const k = +path.query.k;
 
             if (Number.isInteger(k) && k >= 0) {
-
-                let k = +path.query.k;
-
+                response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
                 setImmediate(() => {
-                    response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
                     response.end(JSON.stringify({k: k, fact: factorial(k)}));
                 });
 
@@ -36,4 +33,4 @@ http.createServer(async (request, response) => {
     }
 }).listen(3000);
 
-console.log('Start server at http://localhost:3000/fact?k=3');
+console.log('Start server at http://localhost:3000/');
