@@ -13,6 +13,9 @@ const server = http.createServer().listen(PORT, () => console.log('Start server 
 
 server.on('request', (req, res) => {
 
+    if (statistic.ssEnabled)
+        statistic.requestsCount++;
+
     console.log(req.url);
     const pathname = url.parse(req.url).pathname;
     switch (pathname) {
@@ -30,10 +33,6 @@ server.on('request', (req, res) => {
             });
             break;
         case '/api/ss':
-
-            if (statistic.ssEnabled)
-                server.emit('requestCounting');
-
             res.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
             res.end(JSON.stringify(statistic));
             break;
@@ -44,9 +43,7 @@ server.on('request', (req, res) => {
     }
 });
 
-server.on('requestCounting', () => statistic.requestsCount += 1);
 
-server.on('commitCounting', () => statistic.commitsCount += 1);
 
 
 process.stdin.setEncoding('utf-8');
@@ -72,9 +69,10 @@ process.stdin.on('readable', () => {
                     console.log(`server will be closed after ${x} s`);
 
                     sd_timer = setTimeout(() => {
-                        console.log('server is closed');
-                        server.close();
-                        process.exit();
+                       process.stdin.unref();
+                        server.close(() => {
+                            console.log('server is closed');
+                        });
                     }, x * 1000);
                 }
                 break;
@@ -92,12 +90,11 @@ process.stdin.on('readable', () => {
                     console.log(`DataBase state fixation >>> enabled, every ${x} s`);
 
                     sc_timer = setInterval(() => {
-                        console.log('committed');
-                        if (statistic.ssEnabled)
-                            server.emit('commitCounting')
+                        db.emit('COMMIT');
                     }, x * 1000);
                     sc_timer.unref();
                 }
+
                 break;
             case 'ss':
 
@@ -107,14 +104,14 @@ process.stdin.on('readable', () => {
                     if (ss_timer == null) {
                         statistic.reset();
                         statistic.startDate = (new Date()).toISOString().split('T')[0];
-
                         console.log(`Statistic writing >>> enabled for ${x} s`);
+                        statistic.ssEnabled = true;
 
                         ss_timer = setTimeout(() => {
-                            console.log('Statistic writing >>> enabled');
+                            console.log('Statistic writing >>> disabled');
                             clearTimeout(ss_timer);
                             statistic.finishDate = (new Date()).toISOString().split('T')[0];
-                            statistic.ssEnabled = true;
+                            statistic.ssEnabled = false;
                             ss_timer = null;
                         }, x * 1000);
                         ss_timer.unref();
@@ -134,34 +131,81 @@ process.stdin.on('readable', () => {
 });
 
 
+
 db.on('GET', (req, res) => {
-    db.select().then(data => res.end(JSON.stringify(data))).catch(() => res.end('Error'));
+    db.select()
+        .then(data => res.end(JSON.stringify(data)));
+
 });
+
+
+db.on('COMMIT', () => {
+        if (statistic.ssEnabled)
+            statistic.commitsCount++;
+        console.log('COMMITTED');
+    }
+);
+
 db.on('POST', (req, res) => {
-    req.on('data', data => {
-        const user = JSON.parse(data);
-        db.insert(user).then(() => res.end(JSON.stringify(user))).catch(() => res.end('Error'));
-    })
-});
-db.on('PUT', (req, res) => {
-    req.on('data', data => {
-        const user = JSON.parse(data);
-        db.update(user)
-            .then(() => res.end(JSON.stringify(user)))
-            .catch(() => {
-                res.end('Error')
+    const user = {};
+
+    req.on('data', chunk => {
+        Object.assign(user, JSON.parse(chunk));
+    });
+
+    req.on('end', () => {
+        db.insert(user)
+            .then((user) => {
+                res.statusCode = 201;
+                return res.end(JSON.stringify(user));
+            })
+            .catch((errorMessage) => {
+                res.statusCode = 400;
+                return res.end(errorMessage);
             });
     })
+
 });
+
+db.on('PUT', (req, res) => {
+
+    const user = {};
+
+    req.on('data', chunk => {
+        Object.assign(user, JSON.parse(chunk));
+    });
+
+    req.on('data', () => {
+
+        db.update(user)
+            .then((user) => {
+                res.statusCode = 200;
+                return res.end(JSON.stringify(user));
+            })
+            .catch((errorMessage) => {
+                res.statusCode = 404;
+                res.end(errorMessage);
+            });
+    })
+
+});
+
 db.on('DELETE', (req, res) => {
     const id = +url.parse(req.url, true).query.id;
 
-    db.deleteUser(id)
-        .then(deletedUser => res.end(JSON.stringify(deletedUser)))
-        .catch(() => {
-            res.end('Error')
+    db.delete(id)
+        .then(deletedUser => {
+            res.statusCode = 200;
+            return res.end(JSON.stringify(deletedUser));
+        })
+        .catch((errorMessage) => {
+            res.statusCode = 404;
+            res.end(errorMessage);
         });
 });
+
+
+
 
 
 

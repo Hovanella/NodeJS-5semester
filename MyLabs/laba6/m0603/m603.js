@@ -16,8 +16,6 @@ const transport = nodemailer.createTransport({
 
 function send(message) {
 
-
-
     const option = {
         from: senderEmail,
         to: receiverEmail,

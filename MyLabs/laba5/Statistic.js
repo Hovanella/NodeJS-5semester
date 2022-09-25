@@ -1,14 +1,12 @@
 class Statistic
 {
-    constructor()
-    {
-        this.ssEnabled = false;
-        this.startDate = '';
-        this.finishDate = '-';
-        this.requestsCount = 0;
-        this.commitsCount = 0;
-    }
-
+    
+    ssEnabled = false;
+    startDate = '';
+    finishDate = '-';
+    requestsCount = 0;
+    commitsCount = 0;
+    
     reset()
     {
         this.ssEnabled = true;

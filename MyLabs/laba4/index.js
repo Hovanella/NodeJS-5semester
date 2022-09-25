@@ -30,15 +30,19 @@ http.createServer(
 ).listen(PORT, () => console.log('Start server at http://localhost:3000'));
 
 db.on('GET', (req, res) => {
-    db.select().then(data => res.end(JSON.stringify(data)));
+    db.select()
+        .then(data => res.end(JSON.stringify(data)));
 });
 
 db.on('POST', (req, res) => {
 
-    req.on('data', data => {
+    const user = {};
 
-        const user = JSON.parse(data);
+    req.on('data', chunk => {
+        Object.assign(user, JSON.parse(chunk));
+    });
 
+    req.on('end', () => {
         db.insert(user)
             .then((user) => {
                 res.statusCode = 201;
@@ -51,11 +55,16 @@ db.on('POST', (req, res) => {
     })
 
 });
+
 db.on('PUT', (req, res) => {
 
-    req.on('data', data => {
+    const user = {};
 
-        const user = JSON.parse(data);
+    req.on('data', chunk => {
+        Object.assign(user, JSON.parse(chunk));
+    });
+
+    req.on('data', () => {
 
         db.update(user)
             .then((user) => {
@@ -69,6 +78,7 @@ db.on('PUT', (req, res) => {
     })
 
 });
+
 db.on('DELETE', (req, res) => {
 
     const id = +url.parse(req.url, true).query.id;
@@ -83,7 +93,7 @@ db.on('DELETE', (req, res) => {
             res.end(errorMessage);
         });
 });
-//endregion
+
 
 
 
