@@ -64,7 +64,7 @@ db.on('PUT', (req, res) => {
         Object.assign(user, JSON.parse(chunk));
     });
 
-    req.on('data', () => {
+    req.on('end', () => {
 
         db.update(user)
             .then((user) => {
@@ -72,7 +72,7 @@ db.on('PUT', (req, res) => {
                 return res.end(JSON.stringify(user));
             })
             .catch((errorMessage) => {
-                res.statusCode = 404;
+                res.statusCode = 400;
                 res.end(errorMessage);
             });
     })
@@ -89,7 +89,7 @@ db.on('DELETE', (req, res) => {
             return res.end(JSON.stringify(deletedUser));
         })
         .catch((errorMessage) => {
-            res.statusCode = 404;
+            res.statusCode = 400;
             res.end(errorMessage);
         });
 });

@@ -3,6 +3,10 @@ const db = require('./DB');
 const fs = require('fs');
 const url = require("url");
 const statistic = require("./Statistic");
+const readline = require("readline");
+const stream = readline.createInterface({
+    input : process.stdin
+})
 const PORT = 3000;
 
 let sd_timer = null;
@@ -24,6 +28,7 @@ server.on('request', (req, res) => {
             db.emit(req.method, req, res);
             break;
         case '/':
+            res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
             fs.readFile("./05-01.html", (err, data) => {
                 if (err) {
                     console.log(err.message);
@@ -44,92 +49,86 @@ server.on('request', (req, res) => {
 });
 
 
+stream.on("line",(line)=>{
+    let x = 0;
+    let chunkArray = line.trim().split(' ');
+    switch (chunkArray[0]) {
+        case 'sd':
 
+            if (sd_timer) {
+                console.log('shut down server timer was cleared');
+                clearTimeout(sd_timer);
+                sd_timer = null;
+            }
 
-process.stdin.setEncoding('utf-8');
-process.stdin.on('readable', () => {
-    let chunk = null;
-    while ((chunk = process.stdin.read()) !== null) {
-        let x = 0;
-        let chunkArray = chunk.trim().split(' ');
+            x = parseInt(chunkArray[1]);
 
-        switch (chunkArray[0]) {
-            case 'sd':
+            if (isNaN(x) === false && x > 0) {
 
-                if (sd_timer != null) {
-                    console.log('shut down server timer was cleared');
-                    clearTimeout(sd_timer);
-                    sd_timer = null;
-                }
+                console.log(`server will be closed after ${x} s`);
 
-                x = parseInt(chunkArray[1]);
+                sd_timer = setTimeout(() => {
+                    stream.close();
+                    server.close(() => {
+                        console.log('server is closed');
+                    });
+                }, x * 1000);
+            }
+            break;
+        case 'sc':
 
-                if (isNaN(x) === false && x > 0) {
+            if (sc_timer != null) {
+                console.log('database state fixation >>> disabled');
+                clearInterval(sc_timer);
+                sc_timer = null;
+            }
 
-                    console.log(`server will be closed after ${x} s`);
+            x = parseInt(chunkArray[1]);
 
-                    sd_timer = setTimeout(() => {
-                       process.stdin.unref();
-                        server.close(() => {
-                            console.log('server is closed');
-                        });
+            if (isNaN(x) === false && x > 0) {
+                console.log(`DataBase state fixation >>> enabled, every ${x} s`);
+
+                sc_timer = setInterval(() => {
+                    db.emit('COMMIT');
+                }, x * 1000);
+                sc_timer.unref();
+            }
+
+            break;
+        case 'ss':
+
+            x = parseInt(chunkArray[1]);
+
+            if (isNaN(x) === false && x > 0) {
+                if (ss_timer == null) {
+                    statistic.reset();
+
+                    statistic.startDate = (new Date()).toISOString().split('T')[0] + ' ' + (new Date()).toISOString().split('T')[1].split('.')[0];
+
+                    console.log(`Statistic writing >>> enabled for ${x} s`);
+                    statistic.ssEnabled = true;
+
+                    ss_timer = setTimeout(() => {
+                        console.log('Statistic writing >>> disabled');
+                        clearTimeout(ss_timer);
+                        statistic.finishDate = (new Date()).toISOString().split('T')[0] + ' ' + (new Date()).toISOString().split('T')[1].split('.')[0];
+                        statistic.ssEnabled = false;
+                        ss_timer = null;
                     }, x * 1000);
+                    ss_timer.unref();
                 }
-                break;
-            case 'sc':
-
-                if (sc_timer != null) {
-                    console.log('database state fixation >>> disabled');
-                    clearInterval(sc_timer);
-                    sc_timer = null;
-                }
-
-                x = parseInt(chunkArray[1]);
-
-                if (isNaN(x) === false && x > 0) {
-                    console.log(`DataBase state fixation >>> enabled, every ${x} s`);
-
-                    sc_timer = setInterval(() => {
-                        db.emit('COMMIT');
-                    }, x * 1000);
-                    sc_timer.unref();
-                }
-
-                break;
-            case 'ss':
-
-                x = parseInt(chunkArray[1]);
-
-                if (isNaN(x) === false && x > 0) {
-                    if (ss_timer == null) {
-                        statistic.reset();
-                        statistic.startDate = (new Date()).toISOString().split('T')[0];
-                        console.log(`Statistic writing >>> enabled for ${x} s`);
-                        statistic.ssEnabled = true;
-
-                        ss_timer = setTimeout(() => {
-                            console.log('Statistic writing >>> disabled');
-                            clearTimeout(ss_timer);
-                            statistic.finishDate = (new Date()).toISOString().split('T')[0];
-                            statistic.ssEnabled = false;
-                            ss_timer = null;
-                        }, x * 1000);
-                        ss_timer.unref();
-                    }
-                } else {
-                    console.log('Statistic writing >>> disabled');
-                    clearTimeout(ss_timer);
-                    statistic.finishDate = (new Date()).toISOString().split('T')[0];
-                    statistic.ssEnabled = false;
-                    ss_timer = null;
-                }
-                break;
-            default:
-                break;
-        }
+            } else {
+                console.log('Statistic writing >>> disabled');
+                clearTimeout(ss_timer);
+                statistic.finishDate = (new Date()).toISOString().split('T')[0] + ' ' + (new Date()).toISOString().split('T')[1].split('.')[0];
+                statistic.ssEnabled = false;
+                ss_timer = null;
+            }
+            break;
+        default:
+            break;
     }
-});
-
+})
 
 
 db.on('GET', (req, res) => {
@@ -183,7 +182,7 @@ db.on('PUT', (req, res) => {
                 return res.end(JSON.stringify(user));
             })
             .catch((errorMessage) => {
-                res.statusCode = 404;
+                res.statusCode = 400;
                 res.end(errorMessage);
             });
     })
@@ -199,7 +198,7 @@ db.on('DELETE', (req, res) => {
             return res.end(JSON.stringify(deletedUser));
         })
         .catch((errorMessage) => {
-            res.statusCode = 404;
+            res.statusCode = 400;
             res.end(errorMessage);
         });
 });

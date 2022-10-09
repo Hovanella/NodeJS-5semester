@@ -7,7 +7,7 @@ function getJSON(url) {
         .then(data => data.text())
         .then(content => { document.querySelector('#data_json').textContent = content });
 }
-getJSON('json/my.json');
+getJSON('../json/my.json');
 
 function getXML(url) {
     const option = {
@@ -18,4 +18,4 @@ function getXML(url) {
         .then(data => data.text())
         .then(content => { document.querySelector('#data_xml').textContent = content });
 }
-getXML('xml/my.xml');
+getXML('../xml/my.xml');
