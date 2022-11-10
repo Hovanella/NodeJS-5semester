@@ -1,10 +1,7 @@
 const http = require('http');
 const url = require('url');
 const fs = require('fs');
-const qs = require('querystring');
 const parseString = require('xml2js').parseString;
-const xmlbuilder = require('xmlbuilder');
-const check = require('./check');
 const multiparty = require('multiparty');
 const {MIME, write200, write405, write404} = require("./myResponse");
 const {sum, generateResult, generateResultXml} = require("./Operations");
@@ -25,10 +22,15 @@ const server = http.createServer((req, res) => {
     }
 }).listen(PORT, () => console.log(`Start server at http://localhost:3000`));
 
+server.on('connection', () => {
+    console.log(`New connection`);
+});
+
 
 function getHandler(req, res) {
 
     const path = url.parse(req.url, true);
+    console.log(path.pathname);
 
     switch (path.pathname) {
 
@@ -112,9 +114,6 @@ function getHandler(req, res) {
                 res.end(`X-static-files-count: ${files.length}`);
             });
             break;
-        case '/files/filename':
-
-            break;
         case '/upload':
             res.writeHead(200, {"Content-Type": "text/html; charset=utf-8"});
             res.end(fs.readFileSync("uploadForm.html"));
@@ -125,7 +124,11 @@ function getHandler(req, res) {
                 const arrayPath = path.pathname.slice(1).split('/');
                 const x = +arrayPath[1], y = +arrayPath[2];
 
-                write200(res, generateResult(x, y), MIME.HTML);
+                if (isNaN(x) || isNaN(y)) {
+                    write200(res, req.url, MIME.HTML);
+                } else {
+                    write200(res, generateResult(x, y), MIME.HTML);
+                }
                 break;
             }
 
@@ -182,8 +185,8 @@ function postHandler(req, res) {
             break;
         case '/upload':
             let form = new multiparty.Form({uploadDir: "./static"});
-            form.on("field", (name, value) => {
-
+            form.on("field", (name,file) => {
+               console.log("field", name, file);
             });
             form.on("file", (name, file) => {
                 console.log(`name = ${name}; original filename: ${file.originalFilename}; path = ${file.path}`);

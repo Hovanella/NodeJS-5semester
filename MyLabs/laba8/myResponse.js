@@ -1,17 +1,17 @@
 const MIME = {
-    HTML: Symbol('text/html; charset=utf-8'),
-    CSS: Symbol('text/css'),
-    JS: Symbol('text/javascript'),
-    PNG: Symbol('image/png'),
-    DOCX: Symbol('application/msword'),
-    JSON: Symbol('application/json'),
-    XML: Symbol('application/xml'),
-    MP4: Symbol('video/mp4')
+    HTML: 'text/html',
+    CSS: 'text/css',
+    JS: 'text/javascript',
+    PNG: 'image/png',
+    DOCX:'application/msword',
+    JSON:'application/json',
+    XML: 'application/xml',
+    MP4: 'video/mp4'
 };
 exports.MIME = MIME;
 
 function getHeader(mime) {
-    return { 'Content-Type': mime.description };
+    return {'Content-Type': mime};
 }
 exports.getHeader = getHeader;
 

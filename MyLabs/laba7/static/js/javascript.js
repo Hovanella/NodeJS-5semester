@@ -9,6 +9,7 @@ function getJSON(url) {
 }
 getJSON('../json/my.json');
 
+
 function getXML(url) {
     const option = {
         method: "GET",

@@ -5,8 +5,9 @@ const options =
         host: 'localhost',
         path: '/task1',
         port: 3000,
-        method: 'GET'     // 'POST', 'PUT', 'DELETE'
+        method: 'GET'
     };
+
 http.request(options, res => {
     console.log('http.request: statusCode: ', res.statusCode);
     console.log('http.request: statusMessage: ', res.statusMessage);

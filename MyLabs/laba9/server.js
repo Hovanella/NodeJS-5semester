@@ -5,6 +5,7 @@ const mp=require('multiparty');
 const parseString = require('xml2js').parseString;
 const {MIME, write200, write405, write404} = require("./myResponse");
 const fs = require("fs");
+const {generateResultXml} = require("./Operations");
 const PORT = 3000;
 
 const server = http.createServer();
@@ -67,8 +68,7 @@ function postHandler(req, res) {
         case '/task5':
             req.on('data', (data) => {
                 parseString(data, (err, result) => {
-                    const params = result.request.params[0].$;
-                    write200(res, `x = ${params.x}; y = ${params.y}; s = ${params.s}`, MIME.HTML);
+                    write200(res, generateResultXml(result), MIME.XML);
                 });
             });
             break;
@@ -86,6 +86,10 @@ function postHandler(req, res) {
                 res.end("Файл получен");
             });
             form.parse(req);
+            break;
+
+        case '/task8':
+
             break;
         default:
             write404(req, res);

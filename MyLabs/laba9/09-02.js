@@ -1,6 +1,8 @@
 const http = require('http');
 const query = require('querystring');
-const params = query.stringify({x: 3, y: 5});
+
+const params = query.stringify({x: 3, y: 5})
+
 const option = {
     host: 'localhost',
     path: '/task2?' + params,

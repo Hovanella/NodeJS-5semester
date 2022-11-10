@@ -1,14 +1,23 @@
 const http = require('http');
-const xmlbuilder = require('xmlbuilder');
-const requestXml = xmlbuilder.create('request');
-requestXml.element('params', {x: 3, y: 5, s: 'Hello'});
+const xmlBuilder = require('xmlbuilder');
+
+const xmlElement = xmlBuilder.create("request").att("id", 33)
+xmlElement.ele("x").att("value", 1);
+xmlElement.ele("x").att("value", 2);
+xmlElement.ele("x").att("value", 3);
+xmlElement.ele("x").att("value", 4);
+xmlElement.ele("m").att("value", "a");
+xmlElement.ele("m").att("value", "b");
+xmlElement.ele("m").att("value", "c");
+const stringXml = xmlElement.end({ pretty: true })
+
 
 const options = {
     host: 'localhost',
     path: '/task5',
     port: 3000,
     method: 'POST',
-    headers: { 'content-type':'application/xml', 'accept':'application/xml' }
+    headers: { 'content-type':'text/xml', 'accept':'text/xml' }
 };
 
 const req = http.request(options, res => {
@@ -17,7 +26,9 @@ const req = http.request(options, res => {
     res.on('data', (data) => {
         console.log('body:', data.toString());
     });
-});
+}).end(stringXml);
 
-req.write(requestXml.toString({pretty:true}));
-req.end();
+
+req.on('error', (e) => {
+    console.error(e);
+});

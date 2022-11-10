@@ -3,6 +3,7 @@ const {StaticHandler} = require('./static');
 const staticHandler = new StaticHandler('./static');
 const PORT = 3000;
 
+
 http.createServer((req, res) => {
     switch(req.method) {
         case 'GET':
@@ -19,9 +20,13 @@ http.createServer((req, res) => {
 const getHandler = (req, res) => {
 
     const url = req.url;
+    const extension = url?.split(".")[1]?.trim();
 
-    if ( staticHandler.MIME.hasOwnProperty(url) ){
-        const headerOfMime = staticHandler.getHeaderOfStaticByUrl(url);
+    console.log(url);
+    console.log(extension);
+
+    if ( staticHandler.MIME.hasOwnProperty(extension) ){
+        const headerOfMime = staticHandler.getHeaderOfStaticByUrl(extension);
         staticHandler.sendFile(req, res, headerOfMime);
     }
     else {

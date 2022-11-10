@@ -68,6 +68,7 @@ stream.on("line",(line)=>{
                 console.log(`server will be closed after ${x} s`);
 
                 sd_timer = setTimeout(() => {
+                    db.removeAllListeners();
                     stream.close();
                     server.close(() => {
                         console.log('server is closed');

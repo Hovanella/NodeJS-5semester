@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 let bound = 'divider';
 let body = `--${bound}\r\n`;
-body += 'Content-Disposition:form-data; name="file"; Filename="photo.png"\r\n';
+body += 'Content-Disposition:form-data; name="file"; Filename="myFile.png"\r\n';
 body += 'Content-Type:application/octet-stream\r\n\r\n';
 
 let options =
@@ -16,7 +16,7 @@ let options =
 const req = http.request(options);
 
 req.write(body);
-let stream = new fs.ReadStream("photo.png");
+let stream = new fs.ReadStream("myFile.png");
 stream.on('data', (chunk) => {
     req.write(chunk);
 });

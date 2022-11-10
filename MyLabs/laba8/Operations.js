@@ -26,22 +26,27 @@ function getMathOperationsResult(x, y) {
 
     return result;
 }
-function generateResultXml(objRequestXml) {
 
+function generateResultXml(objRequestXml) {
     const responseXml = xmlbuilder.create('response');
     responseXml.att('request', objRequestXml.request.$.id);
 
     let sum = 0;
-    objRequestXml.request.x.forEach(x => sum += +x.$.value);
-    let concat = '';
+    let concat= 0;
+
+
+    if (objRequestXml.request.x !== undefined)
+        objRequestXml.request.x.forEach(x => sum += +x.$.value);
+    if (objRequestXml.request.m !== undefined)
     objRequestXml.request.m.forEach(m => concat += m.$.value);
+
     responseXml.element('sum', {element: 'x', result: sum});
     responseXml.element('concat', {element: 'm', result: concat});
+
 
     return responseXml.toString();
 }
 
-//export all file funtions
 module.exports = {
     sum,
     difference,

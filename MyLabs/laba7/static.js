@@ -1,21 +1,21 @@
 const fs = require('fs');
 
-
 class StaticHandler {
 
     MIME = {
-        '/css/style.css': 'text/css',
-        '/docx/my.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        '/image/korgi.png': 'image/png',
-        '/js/javascript.js': 'application/javascript',
-        '/json/my.json': 'application/json',
-        '/video/short.mp4': 'video/mp4',
-        '/xml/my.xml': 'application/xml',
-        '/html/index.html': 'text/html'
+        css: "text/css",
+        docx: "application/msword",
+        png: "image/png",
+        js: "application/javascript",
+        json: "application/json",
+        mp4: "video/mp4",
+        xml: "application/xml",
+        html: "text/html",
     }
 
-    getHeaderOfStaticByUrl(url) {
-        return {'Content-Type': this.MIME[url]};
+
+    getHeaderOfStaticByUrl(extension) {
+        return {'Content-Type': this.MIME[extension]};
     }
 
 
@@ -23,8 +23,8 @@ class StaticHandler {
         this.STATIC_FOLDER = folderPath;
     }
 
-    pathStatic(fn) {
-        return `${this.STATIC_FOLDER}${fn}`;
+    pathStatic(url) {
+        return `${this.STATIC_FOLDER}${url}`;
     }
 
     pipeFile(req, res, headers) {
@@ -51,5 +51,30 @@ class StaticHandler {
 
 }
 
-//export {StaticHandler}
 exports.StaticHandler = StaticHandler;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
