@@ -1,7 +1,7 @@
 const http = require('http');
 const {StaticHandler} = require('./static');
 const staticHandler = new StaticHandler('./static');
-const PORT = 3000;
+const PORT = 4000;
 
 
 http.createServer((req, res) => {

@@ -11,6 +11,7 @@ class StaticHandler {
         mp4: "video/mp4",
         xml: "application/xml",
         html: "text/html",
+        mp3: "audio/mpeg",
     }
 
 

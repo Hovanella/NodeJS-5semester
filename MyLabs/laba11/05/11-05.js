@@ -17,11 +17,9 @@ function square(params) {
         case 1:
             const radius = params[0];
             return Math.pow(radius, 2) * Math.PI;
-            break;
         case 2:
             const length = params[0]; const width = params[1];
             return length * width;
-            break;
         default:
             return 'wrong params';
     }

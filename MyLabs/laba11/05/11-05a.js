@@ -2,8 +2,7 @@ const rpcWS = require('rpc-websockets').Client;
 const ws = new rpcWS('ws://localhost:4000/');
 
 ws.on('open', () => {
-    //region public
-    ws.call('square', [5]).then(result => {
+    ws.call('square', [3]).then(result => {
         console.log(`square(5) = ${result}`);
     });
     ws.call('square', [5, 4]).then(result => {

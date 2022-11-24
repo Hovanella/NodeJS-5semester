@@ -19,3 +19,15 @@ console.log('Enter events A, B or C');
 rl.on('line', line => {
     server.emit(line);
 });
+
+
+const ClientA = new rpcWSS('ClientA://localhost:4000/');
+ClientA.on('open', () => {
+    ClientA.subscribe('A');
+    ClientA.on('A', () => {
+        console.log('event A')
+    });
+});
+
+
+

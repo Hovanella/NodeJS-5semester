@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 
-const bound = 'divider';
+const bound = 'bound';
 let body = `--${bound}\r\n`;
 body += 'Content-Disposition:form-data; name="file"; Filename="MyFile.txt"\r\n';
 body += 'Content-Type:text/plain\r\n\r\n';
