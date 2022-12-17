@@ -1,7 +1,9 @@
 const url = require('url');
 
-module.exports = (req, res, Db) => {
+module.exports = (req, res, instance) => {
+
     let data_json = '';
+
     switch (url.parse(req.url).pathname) {
         case '/api/faculties':
             req.on('data', chunk => {
@@ -10,7 +12,7 @@ module.exports = (req, res, Db) => {
             req.on('end', () => {
                 data_json = JSON.parse(data_json);
                 res.writeHead(200, {'Content-Type': 'application/json'});
-                Db.UpdateRecords('faculty', data_json._id, data_json).
+                instance.UpdateRecords('faculty', data_json._id, data_json).
                 then(records => res.end(JSON.stringify(records))).catch(error => {write_error_400(res, error)});
             });
             break;
@@ -21,9 +23,9 @@ module.exports = (req, res, Db) => {
             req.on('end', () => {
                 data_json = JSON.parse(data_json);
                 res.writeHead(200, {'Content-Type': 'application/json'});
-                Db.IsFacultyExist(data_json.faculty).then(result=>{
+                instance.IsFacultyExist(data_json.faculty).then(result=>{
                     if(result){
-                        Db.UpdateRecords('pulpit', data_json._id, data_json).
+                        instance.UpdateRecords('pulpit', data_json._id, data_json).
                         then(records => res.end(JSON.stringify(records))).catch(error => {write_error_400(res, error)});
                     }
                else{

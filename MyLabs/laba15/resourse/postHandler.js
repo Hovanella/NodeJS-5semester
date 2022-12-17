@@ -1,43 +1,134 @@
 const url = require('url');
+const {write_error_400: Write400, write_error_400} = require("../Errors");
+const path = require("path");
+const {getInstance} = require("../Connection");
 
-module.exports = (req, res, Db) => {
-    let path = url.parse(req.url).pathname;
-    let data_json = '';
-    switch(path)
-    {
-        case '/api/faculties':
-            req.on('data', chunk => {
-                data_json += chunk;
+const endpoints = [
+    "/api/faculties",
+    "/api/pulpits",
+    "/transaction"
+];
+
+module.exports = async (req, res, instance, client) => {
+
+    const {pathname} = url.parse(req.url);
+
+    let jsonData = '';
+
+
+    if (endpoints.includes(pathname)) {
+
+        req.on('data', (data) => {
+            jsonData += data;
+        });
+
+        const postFaculty = async (data) => {
+
+            const collectionName = 'faculty';
+
+            const recordWithSameFaculty = await instance.collection('faculty').findOne({faculty: data.faculty});
+
+            if (recordWithSameFaculty) {
+                Write400(res, 'Faculty with this name already exists');
+                return false;
+            }
+
+            const response = await instance.collection(collectionName).insertOne(data);
+
+            const insertedRecord = await instance.collection(collectionName).findOne({_id: response.insertedId});
+
+            res.writeHead(200, {'Content-Type': 'application/json'});
+
+            res.end(JSON.stringify(insertedRecord));
+        };
+        const postPulpit = async (data) => {
+
+            const collectionName = 'pulpit';
+
+            if (!await validatePulpit(data))
+                return false;
+
+            const response = await instance.collection(collectionName).insertOne(data);
+
+            const insertedRecord = await instance.collection(collectionName).findOne({_id: response.insertedId});
+
+            res.writeHead(200, {'Content-Type': 'application/json'});
+
+            res.end(JSON.stringify(insertedRecord));
+
+        };
+
+        const validatePulpit = async (data) => {
+
+            const recordWithSamePulpit = await instance.collection('pulpit').findOne({pulpit: data.pulpit});
+
+            if (recordWithSamePulpit) {
+                Write400(res, 'Pulpit with this pulpit code already exists');
+                return false;
+            }
+
+            const recordWithSameFaculty = await instance.collection('faculty').findOne({
+                faculty: data.faculty
             });
-            req.on('end', () => {
-                data_json = JSON.parse(data_json);
+
+            console.log(data.faculty);
+
+            if (!recordWithSameFaculty) {
+                Write400(res, 'Faculty with this name does not exist');
+                return false;
+            }
+
+            return true;
+        };
+
+        const postTransaction = async (data) => {
+
+                const transactionOptions = {
+                    readConcern: {level: "local"},
+                    writeConcern: {w: "majority"}
+                };
+
+                const session = client.startSession();
+                session.startTransaction(transactionOptions);
+
+                for (const item of data) {
+
+                    if (!await validatePulpit(item)) {
+                        await session.abortTransaction();
+                        return;
+                    }
+
+                    await instance.collection("pulpit").insertOne(item, {session});
+
+                }
+                session.commitTransaction();
+
+                session.endSession();
+
                 res.writeHead(200, {'Content-Type': 'application/json'});
-                Db.InsertRecords('faculty','faculty',data_json.faculty, data_json).
-                then(records => res.end(JSON.stringify(records))).catch(error => {write_error_400(res, error)});
-            });
-            break;
-        case '/api/pulpits':
-            req.on('data', chunk => {
-                data_json += chunk;
-            });
-            req.on('end', () => {
-                data_json = JSON.parse(data_json);
-                res.writeHead(200, {'Content-Type': 'application/json'});
-                Db.IsFacultyExist(data_json.faculty).then(result=>{
-                     if(result){
-                        Db.InsertRecords('pulpit','pulpit',data_json.pulpit, data_json).
-                        then(records => res.end(JSON.stringify(records))).catch(error => {write_error_400(res, error)});
-                     }
-                else{
-                    write_error_400(res, 'No such faculty');
-                }});
-            });
-            break;
+                res.end(JSON.stringify({status: "OK"}));
+            }
+        ;
+
+        req.on('end', async () => {
+
+                const data = JSON.parse(jsonData);
+
+                switch (pathname) {
+                    case '/api/faculties':
+                        await postFaculty(data);
+                        break;
+                    case '/api/pulpits':
+                        await postPulpit(data);
+                        break;
+                    case '/transaction':
+                        await postTransaction(data);
+                        break;
+                }
+
+            }
+        );
     }
-    function write_error_400(res, error) {
-        res.statusCode = 400;
-        res.statusMessage = 'Invalid method';
-        let htmlText = '<h1>Error 400</h1> </br> <h3>' + error + '</h3>';
-        res.end(htmlText);
-    }
+
 }
+;

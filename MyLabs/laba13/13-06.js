@@ -1,23 +1,34 @@
 const net = require('net');
 
-const HOST = '127.0.0.1';
-const PORT = 40000;
-const X = process.argv[2];
+let HOST = '127.0.0.1';
+let PORT = 3000;
 
-const tcpClient = new net.Socket();
+let parameter = typeof process.argv[2] == 'undefined' ? 1 : process.argv[2];
 
-tcpClient.connect(PORT, HOST, () => {
-    tcpClient.on('data', data => {
-        console.log(data.toString());
-    });
+let client = new net.Socket();
+let buffer = new Buffer.alloc(4);
 
-    const handlerInterval  = setInterval(() => {
-        console.log(`+${X}`);
-        tcpClient.write(X);
+client.connect(PORT, HOST, () => {
+
+    let writer = setInterval(() => {
+        client.write((buffer.writeInt32LE(parameter, 0), buffer));
     }, 1000);
 
     setTimeout(() => {
-        clearInterval(handlerInterval);
-        tcpClient.destroy();
+        clearInterval(writer);
+        client.end();
     }, 20000);
+});
+
+
+client.on('data', data => {
+    console.log(`Client received data from server: ${data.readInt32LE()}`);
+});
+
+client.on('close', () => {
+    console.log('Client closed');
+});
+
+client.on('error', (e) => {
+    console.log('Client error: ', e);
 });

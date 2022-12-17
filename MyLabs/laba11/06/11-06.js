@@ -21,13 +21,5 @@ rl.on('line', line => {
 });
 
 
-const ClientA = new rpcWSS('ClientA://localhost:4000/');
-ClientA.on('open', () => {
-    ClientA.subscribe('A');
-    ClientA.on('A', () => {
-        console.log('event A')
-    });
-});
-
 
 

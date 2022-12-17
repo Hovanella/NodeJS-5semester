@@ -1,20 +1,8 @@
-const sql = require('mssql/msnodesqlv8');
-const config = {
-    database: 'UNIVER',
-    server: 'localhost',
-    driver: "msnodesqlv8",
-    options: {trustedConnection: true, trustServerCertificate: true}
-};
-
-
 class DB {
-    constructor() {
-        this.connectionPool = new sql.ConnectionPool(config).connect().then(async pool => {
-            console.log('Connected to MSSQL server');
-            return pool;
-        }).catch(err => console.log('Connection failed: ', err));
-
+    constructor(pool) {
+        this.connectionPool = pool;
     }
+
 
     executeQueryByEndpoint(endpointWithMethod, data) {
         switch (endpointWithMethod) {
@@ -72,35 +60,26 @@ class DB {
     }
 
 
-    getFaculties() {
-        return this.connectionPool.then(pool => {
-            return pool.request().query('SELECT * FROM FACULTY');
-        }).catch(err => console.log('Error: ', err));
+    async getFaculties() {
+        return await this.connectionPool.request().query('SELECT * FROM FACULTY');
     }
 
-    getPulpits() {
-        return this.connectionPool.then(pool => {
-            return pool.request().query('SELECT * FROM PULPIT');
-        }).catch(err => console.log('Error: ', err));
+    async getPulpits() {
+        return await this.connectionPool.request().query('SELECT * FROM PULPIT');
     }
 
-    getSubjects() {
-        return this.connectionPool.then(pool => {
-            return pool.request().query('SELECT * FROM SUBJECT');
-        }).catch(err => console.log('Error: ', err));
+    async getSubjects() {
+        return await this.connectionPool.request().query('SELECT * FROM SUBJECT');
     }
 
-    getAuditoriumsTypes() {
-        return this.connectionPool.then(pool => {
-            return pool.request().query('SELECT * FROM AUDITORIUM_TYPE');
-        }).catch(err => console.log('Error: ', err));
+    async getAuditoriumsTypes() {
+        return await this.connectionPool.request().query('SELECT * FROM AUDITORIUM_TYPE');
     }
 
     getAuditoriums() {
-        return this.connectionPool.then(pool => {
-            return pool.request().query('SELECT * FROM AUDITORIUM');
-        }).catch(err => console.log('Error: ', err));
+
     }
+
 
     postFaculties(data) {
         const faculty = data.faculty;
@@ -278,6 +257,6 @@ class DB {
 
 }
 
-module.exports = new DB();
+module.exports = DB;
 
 

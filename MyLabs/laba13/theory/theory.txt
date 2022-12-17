@@ -1,0 +1,15 @@
+1.The Transmission Control Protocol (TCP) is a transport layer protocol that provides reliable communication over networks. Some of the main properties of TCP are:
+     1)Connection-oriented: TCP requires that a connection be established between the sender and the receiver before data can be transmitted. This connection is established using a three-way handshake process.
+     2)Reliable: TCP ensures that data is delivered to the receiver correctly by using error checking and retransmission of lost or corrupted data.
+     3)Flow control: TCP uses a sliding window protocol to regulate the flow of data between the sender and the receiver, preventing the sender from overwhelming the receiver with too much data at once.
+     4)Congestion control: TCP adjusts the rate at which data is transmitted based on the available bandwidth and the congestion of the network, helping to prevent network overload and ensure fair use of resources.
+
+ 2)A port is a communication endpoint on a computer or network device. When a computer or device communicates over a network, it sends and receives data through a specific port number. Each port is identified by a unique 16-bit number, ranging from 0 to 65535. Some common port numbers are reserved for specific services, such as 80 for HTTP and 443 for HTTPS.
+
+3)A socket is a software endpoint that establishes a connection between a client and a server for communication over a network. Sockets allow applications to send and receive data through the network using a common set of rules. Sockets are identified by a combination of the IP address of the host and the port number.
+
+4)Half-duplex communication is a type of communication where data can be transmitted in only one direction at a time. This means that one end of the communication channel can only send data while the other end can only receive data, and vice versa.
+
+5)Full-duplex communication is a type of communication where data can be transmitted in both directions simultaneously. This means that both ends of the communication channel can send and receive data at the same time.
+
+6)The User Datagram Protocol (UDP) is a transport layer protocol that is similar to TCP, but it is connectionless and does not provide the same level of reliability. UDP does not establish a connection before transmitting data and does not retransmit lost or corrupted data. This makes UDP faster and more efficient than TCP, but it also means that it is less reliable and may not be suitable for all types of communication.

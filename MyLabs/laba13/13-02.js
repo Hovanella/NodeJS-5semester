@@ -1,7 +1,7 @@
 const net = require('net');
 
 const HOST = '127.0.0.1';
-const PORT = 40000;
+const PORT = 3000;
 
 const tcpClient = new net.Socket();
 tcpClient.on('data', data => {

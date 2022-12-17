@@ -12,7 +12,9 @@ const rl = readline.createInterface(
 console.log('Enter events A, B or C');
 
 ws.on('open', () => {
+
     rl.on('line', line => {
-        ws.notify(line).then(() => {});
+        ws.notify(line);
     });
+
 });

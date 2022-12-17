@@ -1,27 +1,34 @@
 const url = require('url');
+const {write_error_400} = require("../Errors");
 
-module.exports = (req, res, Db) => {
-    let path = url.parse(req.url).pathname;
+const endpoints = [
+    "/api/faculties",
+    "/api/pulpits"
+]
 
-    switch(path)
-    {
-        case '/api/faculties':
-            Db.GetRecordsByTableName('faculty').then(records => res.end(JSON.stringify(records)))
-            .catch(error => {
-                write_error_400(res, error);
-            });
-        break;
-        case '/api/pulpits':
-            Db.GetRecordsByTableName('pulpit').then(records => res.end(JSON.stringify(records)))
-            .catch(error => {
-                write_error_400(res, error);
-            });
-        break;
+module.exports = async (req, res, instance) => {
+
+    const {pathname} = url.parse(req.url);
+
+    if (endpoints.includes(pathname)) {
+
+        const collection = pathname.split('/')[2];
+
+        let collectionName;
+        if (collection === 'faculties')
+            collectionName = 'faculty';
+        else
+            collectionName = 'pulpit';
+
+        const records = await instance.collection(collectionName).find().toArray();
+
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify(records));
     }
-}
-function write_error_400(res, error) {
-    res.statusCode = 400;
-    res.statusMessage = 'Invalid method';
-    let htmlText = '<h1>Error 400</h1> </br> <h3>' + error + '</h3>';
-    res.end(htmlText);
-}
+    else {
+        write_error_400(res, 'Invalid endpoint');
+    }
+
+};
+
+

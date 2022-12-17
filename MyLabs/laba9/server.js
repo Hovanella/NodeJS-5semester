@@ -73,7 +73,7 @@ function postHandler(req, res) {
             });
             break;
         case '/task6-7':
-            let form =new mp.Form();
+                let form =new mp.Form({uploadDir: './Server'});
             form.on('field',(name,value)=>
             {
                 console.log(name,value);

@@ -1,24 +1,14 @@
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 
-class DB{
-    constructor()
-    {
-        this.url = 'mongodb+srv://root:root@laba15.89liaf4.mongodb.net/?retryWrites=true&w=majority';
-        this.client = new MongoClient(this.url, {useNewUrlParser: true, useUnifiedTopology: true});
-        this.client = this.client.connect().then(connection => {return connection.db("BSTU")});
-        console.log("Connected to MongoDB");
+class DB {
 
-
-
-    }
     GetRecordsByTableName(tableName) {
-        return this.client.then(db => {
-            return db.collection(tableName).find({}).toArray();
-        });
+        return this.instance.collection(tableName).find({}).toArray();
     }
+
     GetRecord(tableName, fields) {
-        return this.client
+        return this.instance
             .then(db => {
                 return db.collection(tableName).findOne(fields);
             })
@@ -27,16 +17,18 @@ class DB{
                 return record;
             });
     }
-    InsertRecords(tableName,tableColumn,code, fields) {
-        return this.client
+
+    InsertRecords(tableName, tableColumn, code, fields) {
+        return this.instance
             .then(async db => {
-                let tableCol= JSON.parse('{"'+ tableColumn + '": "'+ code +'"}');
+                let tableCol = JSON.parse('{"' + tableColumn + '": "' + code + '"}');
                 console.log(code);
                 await db.collection(tableName).findOne(tableCol).then(record => {
                     if (record) throw 'This doc exists';
-                    return record;});
-                db.collection(tableName).insertOne(fields, (err, r) =>{
-                    if(err) console.log(err);
+                    return record;
+                });
+                db.collection(tableName).insertOne(fields, (err, r) => {
+                    if (err) console.log(err);
                     else {
                         console.log(r.insertedCount);
                     }
@@ -46,7 +38,7 @@ class DB{
     }
 
     UpdateRecords(tableName, id, fields) {
-        return this.client
+        return this.instance
             .then(async db => {
                 console.log(id);
                 if (!id) {
@@ -58,9 +50,10 @@ class DB{
                 return this.GetRecord(tableName, fields);
             })
     }
+
     IsFacultyExist(code) {
-        let tableCol = JSON.parse('{"faculty": "'+ code +'"}');
-        return this.client
+        let tableCol = JSON.parse('{"faculty": "' + code + '"}');
+        return this.instance
             .then(db => {
                 return db.collection('faculty').findOne(tableCol);
             })
@@ -70,14 +63,14 @@ class DB{
             });
     }
 
-    DeleteRecord(tableName,tableColumn, code) {
-        return this.client
+    DeleteRecord(tableName, tableColumn, code) {
+        return this.instance
             .then(async db => {
                 if (!code) {
                     throw 'Wrong faculty';
                 }
                 console.log("DB delete");
-                let tableCol= JSON.parse('{"'+ tableColumn + '": "'+ code +'"}');
+                let tableCol = JSON.parse('{"' + tableColumn + '": "' + code + '"}');
                 let removedRecord = await this.GetRecord(tableName, tableCol);
                 await db.collection(tableName).deleteOne(tableCol);
                 return removedRecord;

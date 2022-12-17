@@ -4,8 +4,9 @@ const PORT50000 = 50000;
 
 const clientProcessing = socket => {
     socket.on('data', data => {
-        console.log(`message from client: "${data}"`);
-        socket.write(`ECHO: ${data}`);
+        const number = data.readInt32LE();
+        console.log(`message from client: "${number}"`);
+        socket.write(`ECHO: ${number}`);
     });
 };
 

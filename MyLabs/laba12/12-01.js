@@ -1,6 +1,6 @@
 const http = require('http');
 const handlers = require('./handlers.js');
-const {StudentPointError} = require("./StudentPointError");
+const {StudentPointError} = require("./StudentError");
 const PORT = 3000;
 
 const server = http.createServer().listen(PORT, () => {

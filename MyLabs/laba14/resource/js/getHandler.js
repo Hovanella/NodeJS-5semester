@@ -14,7 +14,7 @@ const endpoints =
     ]
 
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, db) => {
     let endpoint = url.parse(req.url).pathname;
 
     if (endpoint === '/') {
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
     }
     if (endpoints.includes(endpoint)) {
 
-         DB.executeQueryByEndpoint(`GET: ${endpoint}`).then(data => {
+        db.executeQueryByEndpoint(`GET: ${endpoint}`).then(data => {
             write202(res, data.recordset);
         }).catch(err => {
             write404(res, err);
@@ -33,5 +33,5 @@ module.exports = async (req, res) => {
     }
     write404(res, 'Not found');
 
-}
+};
 
